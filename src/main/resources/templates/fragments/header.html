@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th=”http://www.thymeleaf.org”>
+
+<body>
+<header class="masthead" style="background-image: url('img/home-bg.jpg')">
+    <div class="overlay"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-md-10 mx-auto">
+                <div class="site-heading">
+                    <h1 th:text="${header_title}"> tu będzie wpisany tytuł bloga </h1>
+                    <span th:text="${header_author}" class="subheading">tu będzie wpusany autor bloga</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+</body>
+</html>
