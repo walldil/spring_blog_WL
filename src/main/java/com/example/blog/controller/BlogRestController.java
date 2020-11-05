@@ -4,9 +4,12 @@ import com.example.blog.model.Category;
 import com.example.blog.model.Post;
 import com.example.blog.model.User;
 import com.example.blog.service.BlogServiceImpl;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,20 +17,25 @@ import java.util.Optional;
 @RequestMapping("/rest")
 //@Controller     // kontrolek komunikujący się z warstwą front-end
 public class BlogRestController {
+
     private BlogServiceImpl blogService;
+
     @Autowired
     public BlogRestController(BlogServiceImpl blogService) {
         this.blogService = blogService;
     }
+
     @GetMapping("/hello")
     public String hello(){
         return "hello";
     }
+
     @GetMapping("/hello/{name}")        // {var} - zmienna osadzona w ścieżce
     public String helloMe(@PathVariable("name") String name){
         return "hello " + name.toUpperCase();
     }
     // żądanie dodania nowego użytkownika do tabeli user
+
     @PostMapping("/addUser")
     public boolean addUser(
             @RequestParam("name") String name, @RequestParam("lastName") String lastName,
@@ -35,14 +43,17 @@ public class BlogRestController {
     ){
         return blogService.addUser(new User(name, lastName, email, password));
     }
+
     @GetMapping("/users")
     public List<User> getAllUsers() {
         return blogService.getAllUsersOrderByregistrationDateDesc();
     }
+
     @DeleteMapping("/deleteUser")
     public boolean deleteUser(@RequestParam("userId") Long userId){
         return blogService.deleteUser(userId);
     }
+
     @GetMapping("/user/{userId}")
     public String getUserById(@PathVariable("userId") Long userId){
         Optional<User> userOpt = blogService.getUserById(userId);
@@ -51,11 +62,13 @@ public class BlogRestController {
         }
         return "brak użytkownika o id: " + userId;
     }
+
     @PutMapping("/updateUserPassword")
     public boolean updateUserPassword(@RequestParam("userId") Long userId,
                                       @RequestParam("newPassword") String newPassword){
         return blogService.updatePassword(userId,newPassword);
     }
+
     @PostMapping("/addPost")
     public Post addPostByUser(
             @RequestParam("title") String title,
@@ -65,6 +78,7 @@ public class BlogRestController {
             ){
         return blogService.addPostByUser(userId, title, content, category);
     }
+
     @GetMapping("/posts")
     public List<Post> getAllPosts(){
         return blogService.getAllPosts();

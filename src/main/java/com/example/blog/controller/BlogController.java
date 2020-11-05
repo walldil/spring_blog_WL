@@ -3,6 +3,7 @@ package com.example.blog.controller;
 import com.example.blog.model.Category;
 import com.example.blog.model.Post;
 import com.example.blog.model.User;
+import com.example.blog.service.BlogService;
 import com.example.blog.service.BlogServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -18,11 +19,14 @@ import java.util.Optional;
 
 @Controller                  // klasa mapująca żądania protokołu http
 public class BlogController {
+
     private BlogServiceImpl blogService;    // obiekt klasy BlogServiceImpl jest wstrzykiwany do BlogController
+
     @Autowired
     public BlogController(BlogServiceImpl blogService) {
         this.blogService = blogService;
     }
+
     @GetMapping("/")        // na adresie URL localhost:8080/
     public String home(Model model, Authentication auth){   // wywoływana jest metoda zwracająca String
         model.addAttribute("auth", blogService.getLoginStatus(auth));
@@ -38,6 +42,7 @@ public class BlogController {
                             // -> domyślna lokalizacja to resources/templates
                             // -> nie dopisujemy rozszerzenia .html
     }
+
     @PostMapping("/addPost")
     public String addPost(@Validated @ModelAttribute("newPost") Post newPost,
                           BindingResult bindingResult,
@@ -56,6 +61,7 @@ public class BlogController {
                 blogService.getLoggedUser(auth).getUserId(), newPost.getTitle(), newPost.getContent(), newPost.getCategory());
         return "redirect:/";    // przekierowanie na adres localhost:8080/
     }
+
     @GetMapping("/posts&{postId}")
     public String getPost(@PathVariable("postId") Long postId, Model model, Authentication auth){
         model.addAttribute("auth", blogService.getLoginStatus(auth));
@@ -67,6 +73,7 @@ public class BlogController {
         model.addAttribute("post", null);
         return "post";
     }
+
     @GetMapping("/addUser")
     public String addUser(Model model, Authentication auth){
         model.addAttribute("auth", blogService.getLoginStatus(auth));
@@ -74,6 +81,7 @@ public class BlogController {
         model.addAttribute("header_title", "REGISTRATION FORM");
         return "registration";
     }
+
     @PostMapping("/addUser")
     public String addUser(@Valid @ModelAttribute("user") User user,
                           BindingResult bindingResult,
@@ -91,23 +99,27 @@ public class BlogController {
                 "Email: " + user.getEmail() + " is registered in our service");
         return "registration";
     }
+
     @GetMapping("/login")
     public String login(Model model){
         model.addAttribute("header_title", "LOGIN PAGE");
         return "login";
     }
+
     @GetMapping("/login&error")
     public String loginError(Model model){
         model.addAttribute("header_title", "LOGIN PAGE");
         model.addAttribute("error", "Bad credentials");
         return "login";
     }
+
     @PostMapping("/deletePost")
     public String deletePost(
             @RequestParam("post_id") long postId){
         blogService.deletePostById(postId);
         return "redirect:/";
     }
+
     @GetMapping("/updatePost")
     public String updatePost(
             @RequestParam("post_id") long postId,
@@ -121,6 +133,7 @@ public class BlogController {
         model.addAttribute("cats", Category.values());
         return "updatePost";
     }
+
     @PostMapping("/updatePost")
     public String updatePost(
             @Valid @ModelAttribute("postToUpdate") Post postToUpdate,
@@ -138,6 +151,7 @@ public class BlogController {
         blogService.updatePost(postToUpdate);
         return "redirect:/";
     }
+
     @GetMapping("/activateUser&{hexHash}")
     public String activateUser(
             @PathVariable("hexHash") String hexHash, Authentication auth, Model model

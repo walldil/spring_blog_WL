@@ -12,6 +12,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +21,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,6 +29,7 @@ public class BlogServiceImpl implements BlogService {
     private UserRepository userRepository;
     private PostRepository postRepository;
     private RoleRepository roleRepository;
+
     @Autowired
     private PasswordEncoder bCrypt;
 
@@ -36,6 +39,7 @@ public class BlogServiceImpl implements BlogService {
         this.postRepository = postRepository;
         this.roleRepository = roleRepository;
     }
+
     @Override
     public boolean addUser(User user) {
         if(userRepository.findFirstByEmail(user.getEmail()) == null) {
@@ -43,7 +47,7 @@ public class BlogServiceImpl implements BlogService {
             addRoleToUser(user, "ROLE_USER");
             // szyfrowanie hasła algorytmem bCrypt
             user.setPassword(bCrypt.encode(user.getPassword()));
-            // zmiana - domyślnie user jestnieaktywny!
+            // zmiana - domyślnie user jest nieaktywny!
             user.setStatus(false);
             try {
                 System.out.println("LINK AKTYWACYJNY:");
@@ -57,22 +61,24 @@ public class BlogServiceImpl implements BlogService {
             } catch (NoSuchAlgorithmException e) {
                 e.printStackTrace();
             }
-
             userRepository.save(user);   // INSERT INTO user VALUES (?,?,?,?,?);
             return true;
         }
         return false;
     }
+
     @Override
     public User addRoleToUser(User user, String roleName) {
         Role role = roleRepository.findFirstByRoleName(roleName);
         user.getRoles().add(role);
         return user;
     }
+
     @Override
     public List<Post> getAllPosts() {
         return postRepository.findAll(Sort.by(Sort.Direction.DESC, "dateAdded"));
     }
+
     @Override
     public Optional<Post> getPostById(long postId){
         return postRepository.findById(postId);
@@ -93,6 +99,7 @@ public class BlogServiceImpl implements BlogService {
         userRepository.deleteById(userId);
         return isDeleted;
     }
+
     @Override
     public Optional<User> getUserById(long userId) {
         return userRepository.findById(userId);
@@ -109,6 +116,8 @@ public class BlogServiceImpl implements BlogService {
         }
         return false;
     }
+
+
     @Override
     public List<User> getAllUsersOrderByregistrationDateDesc() {
         return userRepository.findAll();
@@ -126,9 +135,11 @@ public class BlogServiceImpl implements BlogService {
         }
         return null;
     }
+
     public void deletePostById(long postId) {
         postRepository.deleteById(postId);
     }
+
     public boolean isAdmin(Authentication auth) {
         if (auth != null) {
             UserDetails userDetails = (UserDetails) auth.getPrincipal();
@@ -138,6 +149,7 @@ public class BlogServiceImpl implements BlogService {
         }
         return false;
     }
+
     public User getLoggedUser(Authentication auth){
         if (auth != null) {
             UserDetails userDetails = (UserDetails) auth.getPrincipal();
@@ -145,6 +157,7 @@ public class BlogServiceImpl implements BlogService {
         }
         return null;
     }
+
     public void updatePost(Post postToUpdate){
         long postId = postToUpdate.getPostId();
         Post postFromDB = postRepository.getOne(postId);
@@ -155,6 +168,7 @@ public class BlogServiceImpl implements BlogService {
         postRepository.save(postFromDB);
         // gdy obiekt posta jest już w bazie danych to post jest aktualizowany
     }
+
     public boolean activateUser(String hash) {
         List<User> users = getAllUsersOrderByregistrationDateDesc();
         MessageDigest md = null;

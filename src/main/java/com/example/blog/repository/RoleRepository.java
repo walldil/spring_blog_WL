@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface RoleRepository extends JpaRepository<Role, Long> {
+
     // SELECT * FROM role WHERE role_name = ?;
     Role findFirstByRoleName(String roleName);
 }

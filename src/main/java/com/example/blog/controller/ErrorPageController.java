@@ -11,15 +11,19 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
 public class ErrorPageController implements ErrorController {
+
     private BlogServiceImpl blogService;
+
     @Autowired
     public ErrorPageController(BlogServiceImpl blogService) {
         this.blogService = blogService;
     }
+
     @Override
     public String getErrorPath() {
         return "myErrorPage";
     }
+
     @GetMapping("/myErrorPage")
     public String getErrorPage(Model model, Authentication auth) {
         model.addAttribute("auth", blogService.getLoginStatus(auth));
